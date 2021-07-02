@@ -49,14 +49,79 @@ ramp_2020_rate = sl.calc_ramp(RT_2020_D)
 RT_2021_D = sl.read_loadfile('OASIS_Real_Time_Dispatch_Actual_Load_2021.csv')
 ramp_2021_rate = sl.calc_ramp(RT_2021_D)
 
+
+
+
+
+
+#%%
+#
+# preliminary graphing
+#
+
+import seaborn as sns
+# Use seaborn style defaults and set the default figure size
+sns.set(rc={'figure.figsize':(30, 12)})
+sns.set_style("darkgrid")
+import plotly.express as px
+
+# try area
+fig = px.area(RT_2010_D, facet_col='Zone Name', facet_col_wrap=2)
+fig.write_html("load2020.html")
+
+#??? DatetimeIndex object is not callable in below fig
+import plotly.express as px
+fig=px.line(RT_2010_D, x=RT_2010_D.index(), 
+                 y='RTD Actual', 
+                 title='RTD 5min by 5min Ramp Rate'
+                 )
+fig.update_xaxes(rangeslider_visible=True)
+fig.show()
+fig.write_html("load.html")
+
+
+
+#%%
+#
+# Now trying to figure out how to call the objects I want from all of these 
+# dataframes to create more useful smaller datasets.
+#
+
 from functools import reduce
 import pandas as pd
-
-data_frames = [RT_2010_D, RT_2011_D, RT_2012_D, RT_2013_D, RT_2014_D, 
-               RT_2015_D, RT_2016_D, RT_2016_D, RT_2017_D, RT_2018_D, 
-               RT_2019_D, RT_2020_D, RT_2021_D]
-RTD_merged = reduce(lambda left,right: pd.merge(left,right,on=None,
-                                                how='outer'),data_frames)
+from pandas import ExcelWriter
 
 
 
+RT_2010_D.to_csv("april_load.csv")
+RT_2011_D.to_excel("april_load.xlsx", sheet_name=RT_2011_D)
+RT_2012_D.to_excel("april_load.xlsx", sheet_name=RT_2012_D)
+RT_2013_D.to_excel("april_load.xlsx", sheet_name=RT_2013_D)
+RT_2014_D.to_excel("april_load.xlsx", sheet_name=RT_2014_D)
+RT_2015_D.to_excel("april_load.xlsx", sheet_name=RT_2015_D)
+RT_2016_D.to_excel("april_load.xlsx", sheet_name=RT_2016_D)
+RT_2017_D.to_excel("april_load.xlsx", sheet_name=RT_2017_D)
+RT_2018_D.to_excel("april_load.xlsx", sheet_name=RT_2018_D)
+RT_2019_D.to_excel("april_load.xlsx", sheet_name=RT_2019_D)
+RT_2020_D.to_excel("april_load.xlsx", sheet_name=RT_2020_D)
+RT_2021_D.to_excel("april_load.xlsx", sheet_name=RT_2021_D)
+
+
+#%%
+#
+# Create a frequency index to use to call specific times of day
+#
+
+
+#RTD_merged = reduce(lambda left,right: pd.merge(left,right,on=None,
+#                                                how='outer'),data_frames)
+
+yr = ['10','11','12','13','14','15','16','17','18','19','20','21']
+for year in yr:
+    index = []
+    daterange = pd.date_range(f'20{year}-04-01 00:05:00', periods=30,freq='D')
+    index = index.append(daterange)
+
+
+for frame in dataa_frames:
+    for index, value in frame.items():
