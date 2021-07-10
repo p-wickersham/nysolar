@@ -51,6 +51,26 @@ ramp_2021_rate = sl.calc_ramp(RT_2021_D)
 
 
 
+#%%
+#
+# Now I need to separate the dataframes into individual days and take the 
+# 
+# 
+#date = ramp_2021_rate['date']
+year = date.dt.year 
+day = date.dt.day
+hour = date.dt.hour
+minute = date.dt.minute
+
+ramp_2021_rate['year'] = year
+ramp_2021_rate['day'] = day
+ramp_2021_rate['hour'] = hour
+ramp_2021_rate['minute'] = minute
+
+#Average load for each 5min interval by zone and by total 
+#
+# Descriptive statisticals of the average april load
+#
 
 
 
@@ -66,13 +86,37 @@ sns.set_style("darkgrid")
 import plotly.express as px
 
 # try area
-fig = px.area(RT_2010_D, facet_col='Zone Name', facet_col_wrap=2)
+fig = px.area(ramp_2010_rate, facet_col='Zone Name', color='Zone Name', facet_col_wrap=6)
+fig.write_html("ramp2020.html")
+
+
+#%%
+#
+# preliminary graphing
+#
+
+import seaborn as sns
+# Use seaborn style defaults and set the default figure size
+sns.set(rc={'figure.figsize':(30, 12)})
+sns.set_style("darkgrid")
+import plotly.express as px
+import pandas as pd
+
+x = RT_2021_D.pivot(index='date',
+                    columns='Zone Name',
+                    values='RTD Actual Load'
+                    )
+x['Total'] = RT_2021_D.sum(axis=1)
+
+# try area
+fig = px.area(x, facet_col='Total', facet_col_wrap=1)
 fig.write_html("load2020.html")
 
+#%%
 #??? DatetimeIndex object is not callable in below fig
 import plotly.express as px
-fig=px.line(RT_2010_D, x=RT_2010_D.index(), 
-                 y='RTD Actual', 
+fig=px.line(RT_2010_D, x=RT_2010_D.index, 
+                 y='RTD Actual Load', 
                  title='RTD 5min by 5min Ramp Rate'
                  )
 fig.update_xaxes(rangeslider_visible=True)
@@ -113,15 +157,38 @@ RT_2021_D.to_excel("april_load.xlsx", sheet_name=RT_2021_D)
 #
 
 
+import matplotlib.pyplot as plt
+fig, axs = plt.subplots(figsize=(12,4))
+RT_2010_D.groupby(RT_2010_D['date'].dt.hour)["value"].mean().plot(kind='bar', rot=0, ax=axs)
+plt.xlabel('Minutes of the day of the day')
+plt.ylabel('RTD load MW')
+
+
 #RTD_merged = reduce(lambda left,right: pd.merge(left,right,on=None,
 #                                                how='outer'),data_frames)
+#import pandas as pd
+#yr = ['10','11','12','13','14','15','16','17','18','19','20','21']
+#for year in yr:
 
-yr = ['10','11','12','13','14','15','16','17','18','19','20','21']
-for year in yr:
-    index = []
-    daterange = pd.date_range(f'20{year}-04-01 00:05:00', periods=30,freq='D')
-    index = index.append(daterange)
+#%%
+import seaborn as sns
+# Use seaborn style defaults and set the default figure size
+sns.set(rc={'figure.figsize':(30, 12)})
+sns.set_style("darkgrid")
+
+import plotly.express as px
+fig=px.line(RT_2021_D,x=RT_2021_D.index(), 
+                 y=RT_2021_D.values,
+                 z=RT_2021_D.index(date.dt.day),
+                 title='RTD Actual Load'
+                 )
+fig.update_xaxes(rangeslider_visible=True)
+fig.show()
+fig.write_html("load.html")
 
 
-for frame in dataa_frames:
-    for index, value in frame.items():
+    
+#%%
+daterange = pd.date_range('2010-04-01 00:05:00', periods=30,freq='D')
+daterange = daterange.set_index('0')
+test = daterange.join(RT_2010_D, on=, how='left')

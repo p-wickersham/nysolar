@@ -10,7 +10,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-#imports darta from downloaded NYSERDA csv (copy included in dataset, opened: 5/13/21)
+#imports data from downloaded NYSERDA csv (copy included in dataset, opened: 5/13/21)
 solar = pd.read_csv('Statewide_Solar_Projects__Beginning_2000.csv', 
                     index_col=False)
 

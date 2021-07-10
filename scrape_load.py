@@ -12,16 +12,23 @@ import pandas as pd
 #
 
 def read_loadfile(filename):
-    rtd = (pd.read_csv('OASIS_Real_Time_Dispatch_Actual_Load_2010.csv'))
+    rtd = pd.read_csv(filename)
     date = pd.to_datetime(rtd['RTD End Time Stamp'])
     rtd['date'] = date
     year = date.dt.year 
+    day = date.dt.day
+    hour = date.dt.hour
+    minute = date.dt.minute
+    
     rtd['year'] = year
-
+    rtd['day'] = day
+    rtd['hour'] = hour
+    rtd['minute'] = minute
+    return rtd
 #
 # Creates dataframe for load
 #
-
+'''
 #???? Can I make the dataframe name equal to the year in the data set?    
     RTD = rtd.pivot(index='date',
                     columns='Zone Name',
@@ -29,14 +36,15 @@ def read_loadfile(filename):
     RTD['Total'] = RTD.sum(axis=1)
     return RTD
 
-
 #
 # Creates dataframe for ramp rate between 5min intervals.
 #
-
+'''
 def calc_ramp(dataframe):
-
+    rr = dataframe.pivot(index='date',
+                          columns='Zone Name',
+                          values='RTD Actual Load')
 #???? Can I make the dataframe name equal to the year in the data set? 
-    ramp_rate = dataframe.diff()
+    ramp_rate = rr.sum(axis=1)
 
     return ramp_rate
